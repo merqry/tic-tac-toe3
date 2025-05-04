@@ -12,8 +12,10 @@ function App() {
     width: window.innerWidth,
     height: window.innerHeight,
   });
-  const [isTimedMode, setIsTimedMode] = useState(false);
+  const [gameMode, setGameMode] = useState('no-timer'); // 'no-timer', 'timed', 'bullet'
   const [timeLeft, setTimeLeft] = useState(60);
+  const [xTimeLeft, setXTimeLeft] = useState(60);
+  const [oTimeLeft, setOTimeLeft] = useState(60);
   const [timerActive, setTimerActive] = useState(false);
   const [timeoutWinner, setTimeoutWinner] = useState(null);
 
@@ -31,11 +33,24 @@ function App() {
 
   useEffect(() => {
     let timer;
-    if (timerActive && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-    } else if (timeLeft === 0 && timerActive) {
+    if (timerActive) {
+      if (gameMode === 'timed' && timeLeft > 0) {
+        timer = setInterval(() => {
+          setTimeLeft((prevTime) => prevTime - 1);
+        }, 1000);
+      } else if (gameMode === 'bullet') {
+        timer = setInterval(() => {
+          if (isXNext) {
+            setXTimeLeft((prevTime) => prevTime - 1);
+          } else {
+            setOTimeLeft((prevTime) => prevTime - 1);
+          }
+        }, 1000);
+      }
+    }
+
+    if ((gameMode === 'timed' && timeLeft === 0 && timerActive) ||
+        (gameMode === 'bullet' && ((isXNext && xTimeLeft === 0) || (!isXNext && oTimeLeft === 0)))) {
       // Time's up! Current player loses
       const winner = isXNext ? 'O' : 'X';
       setGameOver(true);
@@ -43,8 +58,9 @@ function App() {
       setTimerActive(false);
       setTimeoutWinner(winner);
     }
+
     return () => clearInterval(timer);
-  }, [timeLeft, timerActive, isXNext]);
+  }, [timeLeft, timerActive, isXNext, gameMode, xTimeLeft, oTimeLeft]);
 
   const calculateWinner = (squares) => {
     const lines = [
@@ -96,7 +112,7 @@ function App() {
           setTimerActive(false);
         } else {
           setIsXNext(!isXNext);
-          if (isTimedMode) {
+          if (gameMode === 'timed') {
             setTimeLeft(60);
           }
         }
@@ -125,7 +141,7 @@ function App() {
         setTimerActive(false);
       } else {
         setIsXNext(!isXNext);
-        if (isTimedMode) {
+        if (gameMode === 'timed') {
           setTimeLeft(60);
         }
       }
@@ -148,13 +164,19 @@ function App() {
     setGameOver(false);
     setShowConfetti(false);
     setTimeLeft(60);
+    setXTimeLeft(60);
+    setOTimeLeft(60);
     setTimerActive(false);
     setTimeoutWinner(null);
   };
 
   const startGame = () => {
-    if (isTimedMode) {
-      setTimerActive(true);
+    setTimerActive(true);
+    if (gameMode === 'timed') {
+      setTimeLeft(60);
+    } else if (gameMode === 'bullet') {
+      setXTimeLeft(60);
+      setOTimeLeft(60);
     }
   };
 
@@ -175,26 +197,66 @@ function App() {
           gravity={0.3}
         />
       )}
-      <h1>Tic Tac Toe</h1>
+      <h1>Three Tac Toe</h1>
       {!gameOver && !timerActive && (
         <div className="game-options">
-          <label>
-            <input
-              type="checkbox"
-              checked={isTimedMode}
-              onChange={(e) => setIsTimedMode(e.target.checked)}
-              disabled={gameOver || timerActive}
-            />
-            Set move timer: 1-minute limit per move
-          </label>
+          <div className="mode-selection">
+            <label>
+              <input
+                type="radio"
+                name="gameMode"
+                value="no-timer"
+                checked={gameMode === 'no-timer'}
+                onChange={(e) => setGameMode(e.target.value)}
+                disabled={gameOver || timerActive}
+              />
+              No Timer
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="gameMode"
+                value="timed"
+                checked={gameMode === 'timed'}
+                onChange={(e) => setGameMode(e.target.value)}
+                disabled={gameOver || timerActive}
+              />
+              Timed Mode: 1-minute limit per move
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="gameMode"
+                value="bullet"
+                checked={gameMode === 'bullet'}
+                onChange={(e) => setGameMode(e.target.value)}
+                disabled={gameOver || timerActive}
+              />
+              Bullet Mode: 1-minute total thinking time per player
+            </label>
+          </div>
           <button className="start-button" onClick={startGame} disabled={gameOver || timerActive}>
             Start Game
           </button>
         </div>
       )}
       {timerActive && (
-        <div className="timer">
-          Time left: {formatTime(timeLeft)}
+        <div className="timer-container">
+          {gameMode === 'timed' && (
+            <div className="timer">
+              Time left: {formatTime(timeLeft)}
+            </div>
+          )}
+          {gameMode === 'bullet' && (
+            <div className="bullet-timers">
+              <div className={`player-timer ${isXNext ? 'active' : ''}`}>
+                Player X: {formatTime(xTimeLeft)}
+              </div>
+              <div className={`player-timer ${!isXNext ? 'active' : ''}`}>
+                Player O: {formatTime(oTimeLeft)}
+              </div>
+            </div>
+          )}
         </div>
       )}
       <div className="status">{status}</div>
