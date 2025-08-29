@@ -155,7 +155,7 @@ function App() {
       ? `Winner: ${winner}`
       : board.every((square) => square)
         ? 'Game Draw!'
-        : `Next player: ${isXNext ? 'X' : 'O'}`;
+        : `Player: ${isXNext ? 'X' : 'O'}`;
 
   const resetGame = () => {
     setBoard(Array(9).fill(null));
@@ -201,18 +201,29 @@ function App() {
       {!gameOver && !timerActive && (
         <div className="game-options">
           <div className="mode-selection">
-            <label htmlFor="game-mode" className="mode-label">Game Mode:</label>
-            <select
-              id="game-mode"
-              value={gameMode}
-              onChange={(e) => setGameMode(e.target.value)}
-              disabled={gameOver || timerActive}
-              className="mode-dropdown"
-            >
-              <option value="no-timer">No Timer</option>
-              <option value="timed">Timed: 30-second limit per move</option>
-              <option value="bullet">Bullet: 30-second total thinking time per player</option>
-            </select>
+            <div className="segmented-control">
+              <button
+                className={`segment ${gameMode === 'no-timer' ? 'selected' : ''}`}
+                onClick={() => setGameMode('no-timer')}
+                disabled={gameOver || timerActive}
+              >
+                No Timer
+              </button>
+              <button
+                className={`segment ${gameMode === 'timed' ? 'selected' : ''}`}
+                onClick={() => setGameMode('timed')}
+                disabled={gameOver || timerActive}
+              >
+                Timed
+              </button>
+              <button
+                className={`segment ${gameMode === 'bullet' ? 'selected' : ''}`}
+                onClick={() => setGameMode('bullet')}
+                disabled={gameOver || timerActive}
+              >
+                Bullet
+              </button>
+            </div>
           </div>
           <button className="start-button" onClick={startGame} disabled={gameOver || timerActive}>
             Start Game
