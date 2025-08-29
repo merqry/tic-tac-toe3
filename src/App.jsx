@@ -13,9 +13,9 @@ function App() {
     height: window.innerHeight,
   });
   const [gameMode, setGameMode] = useState('no-timer'); // 'no-timer', 'timed', 'bullet'
-  const [timeLeft, setTimeLeft] = useState(60);
-  const [xTimeLeft, setXTimeLeft] = useState(60);
-  const [oTimeLeft, setOTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(30);
+  const [xTimeLeft, setXTimeLeft] = useState(30);
+  const [oTimeLeft, setOTimeLeft] = useState(30);
   const [timerActive, setTimerActive] = useState(false);
   const [timeoutWinner, setTimeoutWinner] = useState(null);
 
@@ -113,7 +113,7 @@ function App() {
         } else {
           setIsXNext(!isXNext);
           if (gameMode === 'timed') {
-            setTimeLeft(60);
+            setTimeLeft(30);
           }
         }
       } else if (board[index] === currentPiece) {
@@ -139,12 +139,12 @@ function App() {
         setGameOver(true);
         setShowConfetti(true);
         setTimerActive(false);
-      } else {
-        setIsXNext(!isXNext);
-        if (gameMode === 'timed') {
-          setTimeLeft(60);
+              } else {
+          setIsXNext(!isXNext);
+          if (gameMode === 'timed') {
+            setTimeLeft(30);
+          }
         }
-      }
     }
   };
 
@@ -163,21 +163,21 @@ function App() {
     setSelectedPiece(null);
     setGameOver(false);
     setShowConfetti(false);
-    setTimeLeft(60);
-    setXTimeLeft(60);
-    setOTimeLeft(60);
+    setTimeLeft(30);
+    setXTimeLeft(30);
+    setOTimeLeft(30);
     setTimerActive(false);
     setTimeoutWinner(null);
   };
 
   const startGame = () => {
     setTimerActive(true);
-    if (gameMode === 'timed') {
-      setTimeLeft(60);
-    } else if (gameMode === 'bullet') {
-      setXTimeLeft(60);
-      setOTimeLeft(60);
-    }
+              if (gameMode === 'timed') {
+            setTimeLeft(30);
+          } else if (gameMode === 'bullet') {
+            setXTimeLeft(30);
+            setOTimeLeft(30);
+          }
   };
 
   const formatTime = (seconds) => {
@@ -201,46 +201,25 @@ function App() {
       {!gameOver && !timerActive && (
         <div className="game-options">
           <div className="mode-selection">
-            <label>
-              <input
-                type="radio"
-                name="gameMode"
-                value="no-timer"
-                checked={gameMode === 'no-timer'}
-                onChange={(e) => setGameMode(e.target.value)}
-                disabled={gameOver || timerActive}
-              />
-              No Timer
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="gameMode"
-                value="timed"
-                checked={gameMode === 'timed'}
-                onChange={(e) => setGameMode(e.target.value)}
-                disabled={gameOver || timerActive}
-              />
-              Timed Mode: 1-minute limit per move
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="gameMode"
-                value="bullet"
-                checked={gameMode === 'bullet'}
-                onChange={(e) => setGameMode(e.target.value)}
-                disabled={gameOver || timerActive}
-              />
-              Bullet Mode: 1-minute total thinking time per player
-            </label>
+            <label htmlFor="game-mode" className="mode-label">Game Mode:</label>
+            <select
+              id="game-mode"
+              value={gameMode}
+              onChange={(e) => setGameMode(e.target.value)}
+              disabled={gameOver || timerActive}
+              className="mode-dropdown"
+            >
+              <option value="no-timer">No Timer</option>
+              <option value="timed">Timed: 30-second limit per move</option>
+              <option value="bullet">Bullet: 30-second total thinking time per player</option>
+            </select>
           </div>
           <button className="start-button" onClick={startGame} disabled={gameOver || timerActive}>
             Start Game
           </button>
         </div>
       )}
-      {timerActive && (
+      {timerActive && gameMode !== 'no-timer' && (
         <div className="timer-container">
           {gameMode === 'timed' && (
             <div className="timer">
@@ -259,14 +238,20 @@ function App() {
           )}
         </div>
       )}
-      <div className="status">{status}</div>
-      <div className="instructions">
-        {gameOver 
-          ? "Game Over! Click Reset to play again"
-          : selectedPiece !== null 
-            ? `Click an empty square to move your ${isXNext ? 'X' : 'O'} or click another ${isXNext ? 'X' : 'O'} to change selection`
-            : `Click to place or select your ${isXNext ? 'X' : 'O'}`}
-      </div>
+      {timerActive && (
+        <div className="status">{status}</div>
+      )}
+      {timerActive && (
+        <div className="instructions">
+          {gameOver 
+            ? "Game Over! Click Reset to play again"
+            : selectedPiece !== null 
+              ? `Click an empty square to move your ${isXNext ? 'X' : 'O'} or click another ${isXNext ? 'X' : 'O'} to change selection`
+              : countPieces(board, isXNext ? 'X' : 'O') >= 3
+                ? `Click on an existing ${isXNext ? 'X' : 'O'} to select it for moving`
+                : `Click to place your ${isXNext ? 'X' : 'O'}`}
+        </div>
+      )}
       <div className="board">
         {board.map((square, index) => (
           <button
