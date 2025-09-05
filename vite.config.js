@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  base: '/tic-tac-toe3/',
   build: {
     outDir: 'build',
-    base: '/tic-tac-toe3/',
     sourcemap: true,
     rollupOptions: {
       output: {

@@ -249,7 +249,7 @@ function App() {
           )}
         </div>
       )}
-      {timerActive && (
+      {(timerActive || gameOver) && (
         <div className="status">{status}</div>
       )}
       {timerActive && (
