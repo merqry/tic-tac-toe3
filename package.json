@@ -1,5 +1,6 @@
 {
   "name": "three-tac-toe",
+  "homepage": "https://merqry.github.io/tic-tac-toe3/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -15,7 +16,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -37,6 +40,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.2.1",
+    "gh-pages": "^6.3.0",
     "vite": "^6.3.4",
     "vitest": "^3.1.2"
   }

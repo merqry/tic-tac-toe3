@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     outDir: 'build',
+    base: '/tic-tac-toe3/',
     sourcemap: true,
     rollupOptions: {
       output: {
